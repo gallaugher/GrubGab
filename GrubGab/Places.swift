@@ -12,6 +12,7 @@ import CoreLocation
 class Places {
     struct PlaceData {
         var placeName: String
+        var address: String
         var coordinates: CLLocation
         var postedBy: String
     }

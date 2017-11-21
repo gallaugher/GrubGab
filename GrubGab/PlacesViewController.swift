@@ -27,18 +27,16 @@ class PlacesViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         
-
-        
         // Put in somem bogus data
-        places.placeArray.append(Places.PlaceData(placeName: "White Mountain Creamery", coordinates: CLLocation(), postedBy: "Fr. Leahy"))
-        places.placeArray.append(Places.PlaceData(placeName: "The Eagle's Nest", coordinates: CLLocation(), postedBy: "Vanilla Ice"))
+        places.placeArray.append(Places.PlaceData(placeName: "White Mountain Creamery", address: "Commonweath Ave.", coordinates: CLLocation(), postedBy: ""))
+        places.placeArray.append(Places.PlaceData(placeName: "The Eagle's Nest", address: "Lyons Hall Basement", coordinates: CLLocation(), postedBy: ""))
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "ShowPlaceSegue" {
             let destination = segue.destination as! LocationDetailViewController
             let selectedRow = tableView.indexPathForSelectedRow!.row
-            destination.place = places.placeArray[selectedRow]
+            destination.placeData = places.placeArray[selectedRow]
         } else {
             if let selectedIndexPath = tableView.indexPathForSelectedRow {
                 tableView.deselectRow(at: selectedIndexPath, animated: true)
@@ -50,12 +48,12 @@ class PlacesViewController: UIViewController {
         let source = segue.source as! LocationDetailViewController
         // If there's a valid indexPathForSelectedRow, must be returning from a cell-click-to-edit and NOT a "+" add new
         if let selectedIndexPath = tableView.indexPathForSelectedRow {
-            places.placeArray[selectedIndexPath.row] = (source.place)!
+            places.placeArray[selectedIndexPath.row] = (source.placeData)!
             tableView.reloadRows(at: [selectedIndexPath], with: .automatic)
         } else { // Must be returning from a "+" add new
             let newIndexPath = IndexPath(row: places.placeArray.count, section: 0)
-            let place = source.place!
-            places.placeArray.append(place)
+            let placeData = source.placeData!
+            places.placeArray.append(placeData)
             tableView.insertRows(at: [newIndexPath], with: .bottom)
             tableView.scrollToRow(at: newIndexPath, at: .bottom, animated: true)
         }
@@ -72,7 +70,7 @@ extension PlacesViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         cell.textLabel?.text = places.placeArray[indexPath.row].placeName
-        cell.detailTextLabel?.text = places.placeArray[indexPath.row].postedBy
+        cell.detailTextLabel?.text = places.placeArray[indexPath.row].address
         return cell
     }
 }

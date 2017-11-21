@@ -12,10 +12,11 @@ import CoreLocation
 class LocationDetailViewController: UIViewController {
 
     @IBOutlet weak var placeNameLabel: UITextField!
+    @IBOutlet weak var addressLabel: UITextField!
     
     var locationManger: CLLocationManager!
     var currentLocation: CLLocation!
-    var place: Places.PlaceData?
+    var placeData: Places.PlaceData?
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -25,11 +26,13 @@ class LocationDetailViewController: UIViewController {
         super.viewDidLoad()
 
         getLocation()
-        if let place = place {
+        if let place = placeData {
             placeNameLabel.text = place.placeName
+            addressLabel.text = place.address
+            currentLocation = place.coordinates
         } else {
             // Just stuff some empty values in there for starters
-            place = Places.PlaceData(placeName: "", coordinates: CLLocation(), postedBy: "")
+            placeData = Places.PlaceData(placeName: "", address: "", coordinates: CLLocation(), postedBy: "")
         }
     }
     
@@ -41,7 +44,8 @@ class LocationDetailViewController: UIViewController {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        place?.placeName = placeNameLabel.text!
+        placeData?.placeName = placeNameLabel.text!
+        placeData?.address = addressLabel.text!
     }
 
     @IBAction func cancelButtonPressed(_ sender: UIBarButtonItem) {
@@ -52,6 +56,8 @@ class LocationDetailViewController: UIViewController {
             navigationController?.popViewController(animated: true)
         }
     }
+    
+    
 }
 
 extension LocationDetailViewController: CLLocationManagerDelegate {
@@ -94,25 +100,21 @@ extension LocationDetailViewController: CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-//        let geoCoder = CLGeocoder()
-//        var place = ""
+        let geoCoder = CLGeocoder()
         currentLocation = locations.last
-        place?.coordinates = currentLocation
-        print("Longitude: \(currentLocation.coordinate.longitude), Latitude: \(currentLocation.coordinate.latitude)")
+        placeData?.coordinates = currentLocation
+        print(">>> Longitude: \(currentLocation.coordinate.longitude), Latitude: \(currentLocation.coordinate.latitude)")
         
-//        let currentLatitude = currentLocation.coordinate.latitude
-//        let currentLongitude = currentLocation.coordinate.longitude
-//        let currentCoordinates = "\(currentLatitude),\(currentLongitude)"
-//        geoCoder.reverseGeocodeLocation(currentLocation, completionHandler: {placemarks, error in
-//            if placemarks != nil {
-//                let placemark = placemarks?.last
-//                place = (placemark?.name)!
-//            } else {
-//                print("Error retrieving place. Error code: \(error!)")
-//                place = "Unknown Weather Location"
-//            }
-//
-//        })
+        geoCoder.reverseGeocodeLocation(currentLocation, completionHandler: {placemarks, error in
+                    if placemarks != nil {
+                        let placemark = placemarks?.last
+                        self.placeData?.placeName = placemark?.name ?? ""
+                        self.placeData?.address = placemark?.thoroughfare ?? ""
+                    } else {
+                        print("Error retrieving place. Error code: \(error!)")
+                    }
+        
+                })
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
