@@ -7,13 +7,13 @@
 //
 
 import Foundation
+import CoreLocation
 
 class Places {
     struct PlaceData {
-        var placeName = ""
-        var latitude = ""
-        var longitude = ""
-        var postedBy = ""
+        var placeName: String
+        var coordinates: CLLocation
+        var postedBy: String
     }
     var placeArray = [PlaceData]()
     
